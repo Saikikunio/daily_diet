@@ -95,6 +95,16 @@ def get_food(food_id):
         return jsonify({"message": "Acesso negado"}), 403
     return jsonify({"id": food.id, "name": food.name, "description": food.description, "date": food.date, "included": food.included})
 
+@app.route('/food/<int:food_id>', methods=['DELETE'])
+@login_required
+def delete_food(food_id):
+    food = Food.query.get(food_id)
+    if food.user_id != current_user.id:
+        return jsonify({"message": "Acesso negado"}), 403
+    db.session.delete(food)
+    db.session.commit()
+    return jsonify({"message": "Comida deletada com sucesso!"})
+
 if __name__ == '__main__':
     app.run(debug=True)
     from models.user import User
