@@ -39,7 +39,7 @@ def login():
 @login_required
 def logout():
     logout_user()
-    return jsonify({"message", "Logout bem-sucedi"})
+    return jsonify({"message": "Logout bem-sucedido"})
 
 @app.route('/user', methods=['POST'])
 def create_user():
@@ -73,6 +73,18 @@ def create_food():
         
         return jsonify({"message": "Comida criada com sucesso!"})
     return jsonify({"message": "Dados inválidos"}), 400
+
+@app.route('/foods/<int:user_id>', methods=['GET'])
+def get_foods(user_id):
+
+    if user_id != current_user.id:
+        return jsonify({"message": "Acesso negado"}), 403
+    foods = Food.query.filter_by(user_id=user_id).all()
+
+    if foods:
+        return jsonify([{"id": f.id, "name": f.name, "description": f.description, "date": f.date, "included": f.included }for f in foods])
+    return jsonify({"message": "Nenhuma comida encontrada"}), 404
+
 
 if __name__ == '__main__':
     app.run(debug=True)
