@@ -58,6 +58,7 @@ def create_user():
     return jsonify({"message": "Dados inválidos"}), 400
 
 @app.route('/food', methods=['POST'])
+@login_required
 def create_food():
     data = request.json
     name = data.get("name")
@@ -75,6 +76,7 @@ def create_food():
     return jsonify({"message": "Dados inválidos"}), 400
 
 @app.route('/foods/<int:user_id>', methods=['GET'])
+@login_required
 def get_foods(user_id):
 
     if user_id != current_user.id:
@@ -85,6 +87,13 @@ def get_foods(user_id):
         return jsonify([{"id": f.id, "name": f.name, "description": f.description, "date": f.date, "included": f.included }for f in foods])
     return jsonify({"message": "Nenhuma comida encontrada"}), 404
 
+@app.route('/foods_especify/<int:food_id>', methods=['GET'])
+@login_required
+def get_food(food_id):
+    food = Food.query.get(food_id)
+    if food.user_id != current_user.id:
+        return jsonify({"message": "Acesso negado"}), 403
+    return jsonify({"id": food.id, "name": food.name, "description": food.description, "date": food.date, "included": food.included})
 
 if __name__ == '__main__':
     app.run(debug=True)
