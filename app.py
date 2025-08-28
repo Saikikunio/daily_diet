@@ -105,6 +105,28 @@ def delete_food(food_id):
     db.session.commit()
     return jsonify({"message": "Comida deletada com sucesso!"})
 
+@app.route('/food/<int:food_id>', methods=['PUT'])
+@login_required
+def update_food(food_id):
+    data = request.json
+    food = Food.query.get(food_id)
+    if food.user_id != current_user.id:
+        return jsonify({"message": "Acesso negado"}), 403
+    
+    if not food:
+        return jsonify({"message": "Comida não encontrada"}), 404
+
+    if not (data.get("name") or data.get("description") or data.get("date") or data.get("included") is not None):
+        return jsonify({"message": "Dados inválidos"}), 400
+    food.name = data.get("name", food.name)
+    food.description = data.get("description", food.description)
+    food.date = data.get("date", food.date)
+    food.included = data.get("included", food.included)
+
+    db.session.commit()
+    return jsonify({"message": "Comida atualizada com sucesso!"})
+
+
 if __name__ == '__main__':
     app.run(debug=True)
     from models.user import User
